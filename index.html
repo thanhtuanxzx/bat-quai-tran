@@ -277,6 +277,12 @@
         <button class="play-btn" id="btnRestart" style="border-color: #ff3300; color: #ff3300; box-shadow: 0 0 20px rgba(255,51,0,0.5), inset 0 0 10px rgba(255,51,0,0.5);">Đầu Thai Trở Lại</button>
     </div>
 
+    <div class="overlay hidden" id="winOverlay">
+        <h1 style="color: #ffcc00; text-shadow: 0 0 30px #ffcc00; font-size: 5rem;">Phá Trận Thành Công!</h1>
+        <p style="font-size: 1.5rem; text-shadow: 0 0 10px #000; margin-bottom: 30px;">Ngươi đã ngộ ra thiên đạo, phá vỡ cấm chế của Bát Quái Tỏa Tiên Trận. Phi thăng thành công!</p>
+        <button class="play-btn" id="btnWinRestart" style="border-color: #ffcc00; color: #ffcc00; box-shadow: 0 0 20px rgba(255,204,0,0.5), inset 0 0 10px rgba(255,204,0,0.5);">Tái Tạo Thân Cốt (Chơi Lại)</button>
+    </div>
+
     <div class="overlay hidden" id="tutorialOverlay" style="background: transparent; pointer-events: none; justify-content: flex-end; padding-bottom: 50px; backdrop-filter: none;">
         <div style="background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 15px; border: 2px solid var(--primary-glow); text-align: center; box-shadow: 0 0 30px var(--primary-glow); pointer-events: auto;">
             <h2 style="color: var(--primary-glow); text-shadow: 0 0 10px var(--primary-glow); margin-top: 0;">Hướng Dẫn Luyện Khí</h2>
@@ -288,9 +294,9 @@
         </div>
     </div>
 
-    <div class="ui-container hidden" id="uiContainer">
-        <div class="phase-indicator" id="phaseUI">Hệ: Kim</div>
-        <div class="instruction">
+    <div class="ui-container hidden" id="uiContainer" style="position: absolute; bottom: 20px; right: 20px; text-align: right;">
+        <div class="phase-indicator" id="phaseUI" style="color: #fff; font-size: 1.5rem; margin-bottom: 10px;">Hệ: Kim</div>
+        <div class="instruction" style="background: rgba(0,0,0,0.5); padding: 10px; border-radius: 5px;">
             <span>Sinh Môn Bí Kíp:</span><br>
             <span style="color:#fff;">Kim</span> ➔ Càn (☰)<br>
             <span style="color:#00aaff;">Thủy</span> ➔ Khảm (☵)<br>
@@ -318,36 +324,34 @@
     </div>
 
     <script>
-        // ==========================================
-        // Game State & Mechanics
-        // ==========================================
         let isPlaying = false;
         let hp = 100;
         const MAX_HP = 100;
+        let progress = 0;
+        const MAX_PROGRESS = 100;
         let phaseInterval = null;
         let hasClickedThisPhase = false;
         let isTutorial = false;
         
         const wuXing = [
-            { name: 'Kim', color: '#ffffff', secondary: '#cccccc', sinhMon: '☰' }, // Càn
-            { name: 'Thủy', color: '#00aaff', secondary: '#0055ff', sinhMon: '☵' }, // Khảm
-            { name: 'Mộc', color: '#00ff00', secondary: '#008800', sinhMon: '☳' }, // Chấn
-            { name: 'Hỏa', color: '#ff3300', secondary: '#aa0000', sinhMon: '☲' }, // Ly
-            { name: 'Thổ', color: '#ffcc00', secondary: '#aa7700', sinhMon: '☷' }  // Khôn
+            { name: 'Kim', color: '#ffffff', secondary: '#cccccc', sinhMon: '☰' },
+            { name: 'Thủy', color: '#00aaff', secondary: '#0055ff', sinhMon: '☵' },
+            { name: 'Mộc', color: '#00ff00', secondary: '#008800', sinhMon: '☳' },
+            { name: 'Hỏa', color: '#ff3300', secondary: '#aa0000', sinhMon: '☲' },
+            { name: 'Thổ', color: '#ffcc00', secondary: '#aa7700', sinhMon: '☷' }
         ];
         
         let currentPhaseIndex = 0;
         let activePhase = wuXing[0];
         
-        // --- UI Functions ---
         function updateHealthBar() {
             const fill = document.getElementById('hpFill');
-            document.getElementById('hpText').innerText = `Thọ Nguyên: ${Math.floor(hp)}/${MAX_HP}`;
             fill.style.width = hp + '%';
-            
-            if (hp > 60) fill.style.background = '#00ff00';
-            else if (hp > 30) fill.style.background = '#ffcc00';
-            else fill.style.background = '#ff3300';
+            fill.style.background = hp > 60 ? '#0f0' : (hp > 30 ? '#ff0' : '#f00');
+        }
+
+        function updateProgressBar() {
+            document.getElementById('progressFill').style.width = `${progress}%`;
         }
 
         function takeDamage(amount) {
@@ -382,28 +386,27 @@
             setTimeout(() => txt.remove(), 1500);
         }
 
-        // --- Game Flow ---
         function startGame() {
             hp = 100;
+            progress = 0;
             isPlaying = true;
-            hasClickedThisPhase = false; // Bắt buộc click lần đầu
+            hasClickedThisPhase = false;
             isTutorial = true;
             
             document.getElementById('menuOverlay').classList.add('hidden');
             document.getElementById('gameOverOverlay').classList.add('hidden');
+            document.getElementById('winOverlay').classList.add('hidden');
             document.getElementById('tutorialOverlay').classList.remove('hidden');
-            
             document.getElementById('hpContainer').classList.remove('hidden');
             document.getElementById('uiContainer').classList.remove('hidden');
             document.getElementById('gameTitle').classList.add('hidden');
             document.getElementById('gameSubtitle').classList.add('hidden');
             
             updateHealthBar();
+            updateProgressBar();
             currentPhaseIndex = 0;
-            updatePhase(true); // isFirst = true
-            
+            updatePhase(true);
             if(phaseInterval) clearInterval(phaseInterval);
-            // Chưa set setInterval, chờ click đầu tiên trong hướng dẫn
         }
 
         function gameOver() {
@@ -414,85 +417,72 @@
             document.getElementById('uiContainer').classList.add('hidden');
         }
 
-        document.getElementById('btnPlay').addEventListener('click', startGame);
+        function gameWin() {
+            isPlaying = false;
+            clearInterval(phaseInterval);
+            const scene = document.getElementById('scene');
+            scene.style.transition = 'all 2s';
+            scene.style.transform = 'scale(3) rotateZ(720deg)';
+            scene.style.opacity = '0';
+            showEffect('life-flash', 'PHI THĂNG!', window.innerWidth/2, window.innerHeight/2);
+            setTimeout(() => {
+                document.getElementById('winOverlay').classList.remove('hidden');
+                scene.style.transition = 'all 0.5s ease-in-out';
+                scene.style.transform = 'rotateX(60deg) scale(1)';
+                scene.style.opacity = '1';
+            }, 2000);
+        }
+
+        document.getElementById('btnStart').addEventListener('click', startGame);
         document.getElementById('btnRestart').addEventListener('click', startGame);
+        document.getElementById('btnWinRestart').addEventListener('click', startGame);
 
         function updatePhase(isFirst = false) {
             if (isPlaying && !isFirst && !hasClickedThisPhase) {
-                // Phạt vì không tìm Sinh Môn kịp
                 showEffect('death-flash', 'Nhiễm Tà Khí!\n-15 Thọ Nguyên', window.innerWidth/2, window.innerHeight/2);
                 takeDamage(15);
             }
             hasClickedThisPhase = false;
-            
-            if (!isPlaying && !isFirst) return; // Died from passive damage
-
+            if (!isPlaying && !isFirst) return;
             activePhase = wuXing[currentPhaseIndex];
-            
-            // Cập nhật CSS variables
             document.documentElement.style.setProperty('--primary-glow', activePhase.color);
             document.documentElement.style.setProperty('--secondary-glow', activePhase.secondary);
             document.documentElement.style.setProperty('--core-glow', activePhase.color);
-            
-            // Cập nhật UI
             document.getElementById('phaseUI').innerText = `Hệ: ${activePhase.name}`;
-            
             if (isTutorial) {
                 document.getElementById('tutPhaseName').innerText = activePhase.name;
                 document.getElementById('tutPhaseName').style.color = activePhase.color;
                 document.getElementById('tutSinhMon').innerText = activePhase.sinhMon;
                 document.getElementById('tutSinhMon').style.color = activePhase.color;
             }
-            
-            // Cập nhật hạt năng lượng
-            document.querySelectorAll('.particle').forEach(p => {
-                p.style.background = activePhase.color;
-                p.style.boxShadow = `0 0 10px ${activePhase.color}`;
-            });
-
-            currentPhaseIndex++;
-            if (currentPhaseIndex >= wuXing.length) {
-                currentPhaseIndex = 0;
-                triggerSpaceDistortion();
-            }
+            currentPhaseIndex = (currentPhaseIndex + 1) % wuXing.length;
+            if (currentPhaseIndex === 0 && !isFirst) triggerSpaceDistortion();
         }
         
         function triggerSpaceDistortion() {
             if(!isPlaying) return;
             const scene = document.getElementById('scene');
             scene.classList.remove('distortion');
-            void scene.offsetWidth; // Force reflow
+            void scene.offsetWidth;
             scene.classList.add('distortion');
             triggerShockwave(true);
         }
 
-        // Cho phép bấm trực tiếp vào biểu tượng lớn trong bảng hướng dẫn
         document.getElementById('tutSinhMon').addEventListener('click', (e) => {
             if (!isTutorial) return;
-            showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên', e.clientX, e.clientY);
+            showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên\n+10% Phá Trận', e.clientX, e.clientY);
             triggerShockwave(false);
             heal(15);
+            progress += 10;
+            updateProgressBar();
             hasClickedThisPhase = true; 
             isTutorial = false;
             document.getElementById('tutorialOverlay').classList.add('hidden');
             phaseInterval = setInterval(() => updatePhase(false), 6000);
         });
 
-        document.getElementById('tutSinhMon').addEventListener('mouseenter', function() {
-            this.style.transform = 'scale(1.2)';
-            this.style.textShadow = '0 0 20px #fff';
-        });
-        document.getElementById('tutSinhMon').addEventListener('mouseleave', function() {
-            this.style.transform = 'scale(1)';
-            this.style.textShadow = 'none';
-        });
-        
-        // ==========================================
-        // Khởi tạo đồ họa Trận đồ
-        // ==========================================
         const baguaSymbols = ['☰', '☵', '☶', '☳', '☴', '☲', '☷', '☱'];
         const innerRing = document.getElementById('innerRing');
-        
         baguaSymbols.forEach((symbol, index) => {
             const angle = (index * 360) / 8;
             const radius = 130; 
@@ -513,11 +503,19 @@
                 if (!isPlaying || hasClickedThisPhase) return;
                 
                 if (symbol === activePhase.sinhMon) {
-                    showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên', e.clientX, e.clientY);
+                    showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên\n+10% Phá Trận', e.clientX, e.clientY);
                     triggerShockwave(false);
                     heal(15);
+                    progress += 10;
+                    if (progress > MAX_PROGRESS) progress = MAX_PROGRESS;
+                    updateProgressBar();
                     hasClickedThisPhase = true; // An toàn phase này
                     
+                    if (progress >= MAX_PROGRESS && !isTutorial) {
+                        gameWin();
+                        return;
+                    }
+
                     if (isTutorial) {
                         isTutorial = false;
                         document.getElementById('tutorialOverlay').classList.add('hidden');
