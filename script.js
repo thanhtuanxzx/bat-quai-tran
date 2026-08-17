@@ -201,14 +201,15 @@
             
             el.style.transform = `translate(${x}px, ${y}px) rotate(${angle + 90}deg)`;
             
-            // Logic Click Sinh Môn / Tử Môn
-            el.addEventListener('click', (e) => {
+            // Logic Mousedown / Touchstart Sinh Môn / Tử Môn (Nhanh nhạy hơn click)
+            const handleHit = (e) => {
                 e.stopPropagation(); 
+                if (e.type === 'touchstart') e.preventDefault(); // Tránh double fire
                 if (!isPlaying || hasClickedThisPhase) return;
                 
                 logDebug(`Nhấp ký hiệu: ${symbol} | Hệ hiện tại: ${activePhase.name} (${activePhase.sinhMon})`);
                 if (symbol === activePhase.sinhMon) {
-                    showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên\n+10% Phá Trận', e.clientX, e.clientY);
+                    showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên\n+10% Phá Trận', e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth/2, e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight/2);
                     triggerShockwave(false);
                     heal(15);
                     progress += 10;
@@ -228,14 +229,17 @@
                     }
                 } else {
                     if (isTutorial) {
-                        showEffect('death-flash', `SAI KÝ HIỆU!\nHãy tìm: ${activePhase.sinhMon}`, e.clientX, e.clientY);
+                        showEffect('death-flash', `SAI KÝ HIỆU!\nHãy tìm: ${activePhase.sinhMon}`, e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth/2, e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight/2);
                     } else {
-                        showEffect('death-flash', 'SAI TỬ MÔN!\n-25 Thọ Nguyên', e.clientX, e.clientY);
+                        showEffect('death-flash', 'SAI TỬ MÔN!\n-25 Thọ Nguyên', e.clientX || (e.touches && e.touches[0].clientX) || window.innerWidth/2, e.clientY || (e.touches && e.touches[0].clientY) || window.innerHeight/2);
                         takeDamage(25);
                         hasClickedThisPhase = true; // Bị phạt rồi thì khỏi bấm nữa cho phase này
                     }
                 }
-            });
+            };
+            
+            el.addEventListener('mousedown', handleHit);
+            el.addEventListener('touchstart', handleHit, {passive: false});
             
             innerRing.appendChild(el);
         });
