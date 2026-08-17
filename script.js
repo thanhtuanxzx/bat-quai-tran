@@ -1,5 +1,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const isDebug = urlParams.get('debug') === 'true';
+        const isDemo = urlParams.get('demo') === 'true';
 
         function logDebug(msg) {
             if (isDebug) console.log(`[Bát Quái Debug] ${msg}`);
@@ -146,6 +147,19 @@
             }
             currentPhaseIndex = (currentPhaseIndex + 1) % wuXing.length;
             if (currentPhaseIndex === 0 && !isFirst) triggerSpaceDistortion();
+            
+            if (isDemo && !isTutorial && isPlaying) {
+                setTimeout(() => {
+                    if (!isPlaying) return;
+                    const trigrams = document.querySelectorAll('.trigram');
+                    for (let el of trigrams) {
+                        if (el.textContent === activePhase.sinhMon) {
+                            el.click();
+                            break;
+                        }
+                    }
+                }, 1500 + Math.random() * 1000);
+            }
         }
         
         function triggerSpaceDistortion() {
@@ -313,3 +327,13 @@
         document.documentElement.style.setProperty('--primary-glow', wuXing[0].color);
         document.documentElement.style.setProperty('--secondary-glow', wuXing[0].secondary);
         document.documentElement.style.setProperty('--core-glow', wuXing[0].color);
+
+        if (isDemo) {
+            logDebug('Demo mode enabled. Auto-playing...');
+            setTimeout(() => {
+                document.getElementById('btnPlay').click();
+                setTimeout(() => {
+                    document.getElementById('tutSinhMon').click();
+                }, 2000);
+            }, 1000);
+        }
