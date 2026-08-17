@@ -167,10 +167,13 @@
 
         /* Bagua Symbols */
         .trigram {
-            position: absolute; font-size: 36px; font-weight: bold;
+            position: absolute; font-size: 50px; font-weight: bold;
             color: var(--core-glow); text-shadow: 0 0 10px var(--core-glow);
             pointer-events: auto; cursor: pointer;
             transition: color 0.3s, text-shadow 0.3s;
+            width: 100px; height: 100px;
+            display: flex; justify-content: center; align-items: center;
+            margin-left: -50px; margin-top: -50px;
         }
         .trigram:hover { color: #fff; text-shadow: 0 0 30px #fff, 0 0 50px #fff; }
 
