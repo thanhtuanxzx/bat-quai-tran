@@ -154,7 +154,7 @@
                     const trigrams = document.querySelectorAll('.trigram');
                     for (let el of trigrams) {
                         if (el.textContent === activePhase.sinhMon) {
-                            el.click();
+                            el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
                             break;
                         }
                     }
