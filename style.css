@@ -173,7 +173,6 @@
             transition: color 0.3s, text-shadow 0.3s;
             width: 100px; height: 100px;
             display: flex; justify-content: center; align-items: center;
-            margin-left: -50px; margin-top: -50px;
         }
         .trigram:hover { color: #fff; text-shadow: 0 0 30px #fff, 0 0 50px #fff; }
 
