@@ -262,6 +262,12 @@
         <div class="hp-fill" id="hpFill"></div>
         <div class="hp-text" id="hpText">Thọ Nguyên: 100/100</div>
     </div>
+    
+    <!-- Progress Bar -->
+    <div class="hp-container hidden" id="progressContainer" style="top: 75px; border-color: #0ff; box-shadow: 0 0 15px #0ff;">
+        <div class="hp-fill" id="progressFill" style="background: #0ff; width: 0%; box-shadow: 0 0 10px rgba(0,255,255,0.5) inset;"></div>
+        <div class="hp-text" id="progressText" style="color: #fff; text-shadow: 0 0 5px #0ff;">Tiến Độ Phá Trận: 0%</div>
+    </div>
 
     <!-- Menus -->
     <div class="overlay" id="menuOverlay">
@@ -348,10 +354,12 @@
             const fill = document.getElementById('hpFill');
             fill.style.width = hp + '%';
             fill.style.background = hp > 60 ? '#0f0' : (hp > 30 ? '#ff0' : '#f00');
+            document.getElementById('hpText').innerText = `Thọ Nguyên: ${Math.floor(hp)}/${MAX_HP}`;
         }
 
         function updateProgressBar() {
             document.getElementById('progressFill').style.width = `${progress}%`;
+            document.getElementById('progressText').innerText = `Tiến Độ Phá Trận: ${progress}%`;
         }
 
         function takeDamage(amount) {
@@ -398,6 +406,7 @@
             document.getElementById('winOverlay').classList.add('hidden');
             document.getElementById('tutorialOverlay').classList.remove('hidden');
             document.getElementById('hpContainer').classList.remove('hidden');
+            document.getElementById('progressContainer').classList.remove('hidden');
             document.getElementById('uiContainer').classList.remove('hidden');
             document.getElementById('gameTitle').classList.add('hidden');
             document.getElementById('gameSubtitle').classList.add('hidden');
@@ -414,6 +423,7 @@
             clearInterval(phaseInterval);
             document.getElementById('gameOverOverlay').classList.remove('hidden');
             document.getElementById('hpContainer').classList.add('hidden');
+            document.getElementById('progressContainer').classList.add('hidden');
             document.getElementById('uiContainer').classList.add('hidden');
         }
 
