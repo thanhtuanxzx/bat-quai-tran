@@ -277,6 +277,17 @@
         <button class="play-btn" id="btnRestart" style="border-color: #ff3300; color: #ff3300; box-shadow: 0 0 20px rgba(255,51,0,0.5), inset 0 0 10px rgba(255,51,0,0.5);">Đầu Thai Trở Lại</button>
     </div>
 
+    <div class="overlay hidden" id="tutorialOverlay" style="background: transparent; pointer-events: none; justify-content: flex-end; padding-bottom: 50px;">
+        <div style="background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 15px; border: 2px solid var(--primary-glow); text-align: center; box-shadow: 0 0 30px var(--primary-glow);">
+            <h2 style="color: var(--primary-glow); text-shadow: 0 0 10px var(--primary-glow); margin-top: 0;">Hướng Dẫn Luyện Khí</h2>
+            <p style="color: #fff; font-size: 1.2rem; margin-bottom: 0;">
+                Hệ hiện tại là: <strong id="tutPhaseName">Kim</strong><br>
+                Bạn cần tìm Ký hiệu Sinh Môn: <strong id="tutSinhMon" style="font-size: 2.5rem; display: block; margin: 10px 0;">☰</strong>
+                Hãy <b>NHẤP VÀO</b> nó trên trận đồ để chính thức bắt đầu!
+            </p>
+        </div>
+    </div>
+
     <div class="ui-container hidden" id="uiContainer">
         <div class="phase-indicator" id="phaseUI">Hệ: Kim</div>
         <div class="instruction">
@@ -315,6 +326,7 @@
         const MAX_HP = 100;
         let phaseInterval = null;
         let hasClickedThisPhase = false;
+        let isTutorial = false;
         
         const wuXing = [
             { name: 'Kim', color: '#ffffff', secondary: '#cccccc', sinhMon: '☰' }, // Càn
@@ -374,10 +386,13 @@
         function startGame() {
             hp = 100;
             isPlaying = true;
-            hasClickedThisPhase = true; // First phase gives grace
+            hasClickedThisPhase = false; // Bắt buộc click lần đầu
+            isTutorial = true;
             
             document.getElementById('menuOverlay').classList.add('hidden');
             document.getElementById('gameOverOverlay').classList.add('hidden');
+            document.getElementById('tutorialOverlay').classList.remove('hidden');
+            
             document.getElementById('hpContainer').classList.remove('hidden');
             document.getElementById('uiContainer').classList.remove('hidden');
             document.getElementById('gameTitle').classList.add('hidden');
@@ -388,7 +403,7 @@
             updatePhase(true); // isFirst = true
             
             if(phaseInterval) clearInterval(phaseInterval);
-            phaseInterval = setInterval(() => updatePhase(false), 6000);
+            // Chưa set setInterval, chờ click đầu tiên trong hướng dẫn
         }
 
         function gameOver() {
@@ -421,6 +436,13 @@
             
             // Cập nhật UI
             document.getElementById('phaseUI').innerText = `Hệ: ${activePhase.name}`;
+            
+            if (isTutorial) {
+                document.getElementById('tutPhaseName').innerText = activePhase.name;
+                document.getElementById('tutPhaseName').style.color = activePhase.color;
+                document.getElementById('tutSinhMon').innerText = activePhase.sinhMon;
+                document.getElementById('tutSinhMon').style.color = activePhase.color;
+            }
             
             // Cập nhật hạt năng lượng
             document.querySelectorAll('.particle').forEach(p => {
@@ -474,10 +496,20 @@
                     triggerShockwave(false);
                     heal(15);
                     hasClickedThisPhase = true; // An toàn phase này
+                    
+                    if (isTutorial) {
+                        isTutorial = false;
+                        document.getElementById('tutorialOverlay').classList.add('hidden');
+                        phaseInterval = setInterval(() => updatePhase(false), 6000);
+                    }
                 } else {
-                    showEffect('death-flash', 'SAI TỬ MÔN!\n-30 Thọ Nguyên', e.clientX, e.clientY);
-                    takeDamage(30);
-                    hasClickedThisPhase = true; // Bị phạt rồi thì khỏi bấm nữa cho phase này
+                    if (isTutorial) {
+                        showEffect('death-flash', `SAI KÝ HIỆU!\nHãy tìm: ${activePhase.sinhMon}`, e.clientX, e.clientY);
+                    } else {
+                        showEffect('death-flash', 'SAI TỬ MÔN!\n-25 Thọ Nguyên', e.clientX, e.clientY);
+                        takeDamage(25);
+                        hasClickedThisPhase = true; // Bị phạt rồi thì khỏi bấm nữa cho phase này
+                    }
                 }
             });
             
