@@ -274,11 +274,21 @@
         function updateRotation(x, y) {
             const xAxis = (window.innerWidth / 2 - x) / 25;
             const yAxis = (window.innerHeight / 2 - y) / 25;
-            array.style.transform = `rotateX(${60 + yAxis}deg) rotateZ(${xAxis}deg)`;
+            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            array.style.transform = `scale(${scale}) rotateX(${60 + yAxis}deg) rotateZ(${xAxis}deg)`;
         }
         window.addEventListener('mousemove', (e) => { updateRotation(e.pageX, e.pageY); });
         window.addEventListener('touchmove', (e) => { if (e.touches.length > 0) updateRotation(e.touches[0].pageX, e.touches[0].pageY); });
-        window.addEventListener('mouseleave', () => { array.style.transform = `rotateX(60deg) rotateZ(0deg)`; });
+        window.addEventListener('mouseleave', () => { 
+            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            array.style.transform = `scale(${scale}) rotateX(60deg) rotateZ(0deg)`; 
+        });
+
+        window.addEventListener('resize', () => {
+            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            array.style.transform = `scale(${scale}) rotateX(60deg) rotateZ(0deg)`;
+        });
+        window.dispatchEvent(new Event('resize'));
 
         const shockwave = document.getElementById('shockwave');
         function triggerShockwave(isMassive = false) {
