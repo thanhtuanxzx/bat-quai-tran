@@ -277,13 +277,13 @@
         <button class="play-btn" id="btnRestart" style="border-color: #ff3300; color: #ff3300; box-shadow: 0 0 20px rgba(255,51,0,0.5), inset 0 0 10px rgba(255,51,0,0.5);">Đầu Thai Trở Lại</button>
     </div>
 
-    <div class="overlay hidden" id="tutorialOverlay" style="background: transparent; pointer-events: none; justify-content: flex-end; padding-bottom: 50px;">
-        <div style="background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 15px; border: 2px solid var(--primary-glow); text-align: center; box-shadow: 0 0 30px var(--primary-glow);">
+    <div class="overlay hidden" id="tutorialOverlay" style="background: transparent; pointer-events: none; justify-content: flex-end; padding-bottom: 50px; backdrop-filter: none;">
+        <div style="background: rgba(0,0,0,0.8); padding: 20px 40px; border-radius: 15px; border: 2px solid var(--primary-glow); text-align: center; box-shadow: 0 0 30px var(--primary-glow); pointer-events: auto;">
             <h2 style="color: var(--primary-glow); text-shadow: 0 0 10px var(--primary-glow); margin-top: 0;">Hướng Dẫn Luyện Khí</h2>
             <p style="color: #fff; font-size: 1.2rem; margin-bottom: 0;">
                 Hệ hiện tại là: <strong id="tutPhaseName">Kim</strong><br>
-                Bạn cần tìm Ký hiệu Sinh Môn: <strong id="tutSinhMon" style="font-size: 2.5rem; display: block; margin: 10px 0;">☰</strong>
-                Hãy <b>NHẤP VÀO</b> nó trên trận đồ để chính thức bắt đầu!
+                Ký hiệu Sinh Môn: <strong id="tutSinhMon" style="font-size: 3.5rem; display: block; margin: 10px 0; cursor: pointer; transition: transform 0.2s;" title="Nhấp vào đây để bắt đầu">☰</strong>
+                Hãy <b>NHẤP VÀO</b> biểu tượng trên (hoặc trên trận đồ) để chính thức bắt đầu!
             </p>
         </div>
     </div>
@@ -465,6 +465,27 @@
             scene.classList.add('distortion');
             triggerShockwave(true);
         }
+
+        // Cho phép bấm trực tiếp vào biểu tượng lớn trong bảng hướng dẫn
+        document.getElementById('tutSinhMon').addEventListener('click', (e) => {
+            if (!isTutorial) return;
+            showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên', e.clientX, e.clientY);
+            triggerShockwave(false);
+            heal(15);
+            hasClickedThisPhase = true; 
+            isTutorial = false;
+            document.getElementById('tutorialOverlay').classList.add('hidden');
+            phaseInterval = setInterval(() => updatePhase(false), 6000);
+        });
+
+        document.getElementById('tutSinhMon').addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.2)';
+            this.style.textShadow = '0 0 20px #fff';
+        });
+        document.getElementById('tutSinhMon').addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.textShadow = 'none';
+        });
         
         // ==========================================
         // Khởi tạo đồ họa Trận đồ
