@@ -271,21 +271,36 @@
         // ==========================================
         const array = document.getElementById('array');
         
+        function getScale() {
+            // Dành một khoảng không gian (padding) cho thanh máu, thanh tiến độ và bảng hướng dẫn trên điện thoại
+            const isMobile = window.innerWidth <= 768;
+            const heightPadding = isMobile ? 240 : 100;
+            return Math.min(1.2, window.innerWidth / 600, (window.innerHeight - heightPadding) / 600);
+        }
+
         function updateRotation(x, y) {
             const xAxis = (window.innerWidth / 2 - x) / 25;
             const yAxis = (window.innerHeight / 2 - y) / 25;
-            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            const scale = getScale();
             array.style.transform = `scale(${scale}) rotateX(${60 + yAxis}deg) rotateZ(${xAxis}deg)`;
         }
-        window.addEventListener('mousemove', (e) => { updateRotation(e.pageX, e.pageY); });
-        window.addEventListener('touchmove', (e) => { if (e.touches.length > 0) updateRotation(e.touches[0].pageX, e.touches[0].pageY); });
+        
+        window.addEventListener('mousemove', (e) => { updateRotation(e.clientX, e.clientY); });
+        
+        window.addEventListener('touchmove', (e) => { 
+            if (e.touches.length > 0) {
+                // Sử dụng clientX, clientY thay vì pageX để chính xác hơn trên mobile có thanh điều hướng
+                updateRotation(e.touches[0].clientX, e.touches[0].clientY); 
+            }
+        }, {passive: false});
+        
         window.addEventListener('mouseleave', () => { 
-            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            const scale = getScale();
             array.style.transform = `scale(${scale}) rotateX(60deg) rotateZ(0deg)`; 
         });
 
         window.addEventListener('resize', () => {
-            const scale = Math.min(1, window.innerWidth / 650, window.innerHeight / 650);
+            const scale = getScale();
             array.style.transform = `scale(${scale}) rotateX(60deg) rotateZ(0deg)`;
         });
         window.dispatchEvent(new Event('resize'));

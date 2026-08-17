@@ -13,6 +13,8 @@
             height: 100vh; overflow: hidden;
             font-family: 'Cormorant Garamond', serif;
             color: white; perspective: 1000px;
+            touch-action: none; /* Ngăn chặn cuộn trang, pull-to-refresh trên điện thoại */
+            overscroll-behavior: none;
         }
 
         /* Menus & Overlays */
@@ -93,7 +95,9 @@
             padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
             text-align: left;
         }
-        .instruction span { font-weight: bold; color: #fff; }
+        .instruction .inst-title { font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .instruction .inst-item { font-weight: normal; }
+        .instruction .inst-item span { font-weight: bold; }
 
         .title {
             position: absolute; top: 40px; right: 40px; font-size: 2.5rem;
@@ -265,29 +269,27 @@
             .overlay p { font-size: 1rem; padding: 0 20px; }
             .play-btn { font-size: 1.2rem; padding: 10px 20px; }
             
-            .title {
-                top: 95px; left: 50%; right: auto; transform: translateX(-50%);
-                font-size: 1.5rem; text-align: center; width: 100%; letter-spacing: 2px;
-            }
-            .subtitle {
-                top: 130px; left: 50%; right: auto; transform: translateX(-50%);
-                font-size: 0.8rem; text-align: center; width: 100%; letter-spacing: 1px;
-            }
+            .title, .subtitle { display: none !important; } /* Ẩn title trên mobile để không bị đè */
             
             .ui-container {
-                bottom: 10px; right: 10px; left: 10px; text-align: center;
-                display: flex; flex-direction: column; align-items: center;
-            }
-            .instruction {
-                max-width: 100%; font-size: 0.85rem; padding: 8px; text-align: center;
+                bottom: 15px; right: 10px; left: 10px; text-align: center;
+                display: flex; flex-direction: column; align-items: center; justify-content: center;
             }
             .phase-indicator {
-                font-size: 1.2rem; margin-bottom: 5px;
+                font-size: 1.2rem; margin-bottom: 8px;
+            }
+            .instruction {
+                max-width: 100%; font-size: 0.85rem; padding: 8px 12px; text-align: center;
+            }
+            .inst-items {
+                display: flex; flex-wrap: wrap; justify-content: center; gap: 5px 15px;
             }
             
-            .hp-container { top: 15px; }
-            .progress-container { top: 50px; }
+            .hp-container { top: 15px; height: 26px; }
+            .progress-container { top: 50px; height: 26px; }
+            .hp-text, .progress-text { font-size: 12px; }
             
+            #tutorialOverlay { justify-content: center !important; padding-bottom: 0 !important; }
             #tutorialOverlay > div {
                 padding: 15px !important; margin: 10px;
             }
@@ -295,13 +297,13 @@
                 font-size: 1rem !important;
             }
             #tutSinhMon {
-                font-size: 2.5rem !important;
+                font-size: 2.5rem !important; margin: 5px 0 !important;
             }
         }
         
+        @media (max-height: 700px) {
+            .title, .subtitle { display: none !important; }
+        }
         @media (max-height: 600px) {
-            .title { display: none; }
-            .subtitle { display: none; }
-            .ui-container { bottom: 5px; right: 5px; left: 5px; }
-            .instruction { display: none; } /* Hide instruction on very short screens to save space */
+            .instruction { display: none !important; } /* Ẩn hướng dẫn nếu màn hình quá lùn */
         }
