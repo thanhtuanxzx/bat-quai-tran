@@ -1,4 +1,11 @@
-let isPlaying = false;
+        const urlParams = new URLSearchParams(window.location.search);
+        const isDebug = urlParams.get('debug') === 'true';
+
+        function logDebug(msg) {
+            if (isDebug) console.log(`[Bát Quái Debug] ${msg}`);
+        }
+
+        let isPlaying = false;
         let hp = 100;
         const MAX_HP = 100;
         let progress = 0;
@@ -33,6 +40,7 @@ let isPlaying = false;
         function takeDamage(amount) {
             if (!isPlaying) return;
             hp -= amount;
+            logDebug(`takeDamage: -${amount} HP. Current HP: ${hp}`);
             if (hp <= 0) {
                 hp = 0;
                 gameOver();
@@ -43,6 +51,7 @@ let isPlaying = false;
         function heal(amount) {
             if (!isPlaying) return;
             hp += amount;
+            logDebug(`heal: +${amount} HP. Current HP: ${hp}`);
             if (hp > MAX_HP) hp = MAX_HP;
             updateHealthBar();
         }
@@ -63,6 +72,7 @@ let isPlaying = false;
         }
 
         function startGame() {
+            logDebug('--- BẮT ĐẦU TRẬN PHÁP ---');
             hp = 100;
             progress = 0;
             isPlaying = true;
@@ -123,6 +133,7 @@ let isPlaying = false;
             hasClickedThisPhase = false;
             if (!isPlaying && !isFirst) return;
             activePhase = wuXing[currentPhaseIndex];
+            logDebug(`Chuyển hệ: ${activePhase.name} | Sinh Môn: ${activePhase.sinhMon}`);
             document.documentElement.style.setProperty('--primary-glow', activePhase.color);
             document.documentElement.style.setProperty('--secondary-glow', activePhase.secondary);
             document.documentElement.style.setProperty('--core-glow', activePhase.color);
@@ -139,6 +150,7 @@ let isPlaying = false;
         
         function triggerSpaceDistortion() {
             if(!isPlaying) return;
+            logDebug('KÍCH HOẠT: Đảo lộn không gian!');
             const scene = document.getElementById('scene');
             scene.classList.remove('distortion');
             void scene.offsetWidth;
@@ -180,6 +192,7 @@ let isPlaying = false;
                 e.stopPropagation(); 
                 if (!isPlaying || hasClickedThisPhase) return;
                 
+                logDebug(`Nhấp ký hiệu: ${symbol} | Hệ hiện tại: ${activePhase.name} (${activePhase.sinhMon})`);
                 if (symbol === activePhase.sinhMon) {
                     showEffect('life-flash', 'ĐÚNG SINH MÔN!\n+15 Thọ Nguyên\n+10% Phá Trận', e.clientX, e.clientY);
                     triggerShockwave(false);
